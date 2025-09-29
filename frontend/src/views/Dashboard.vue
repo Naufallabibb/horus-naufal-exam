@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { usersAPI, authAPI } from '@/services/api'
 import UserTable from '@/components/UserTable.vue'
 import SearchBar from '@/components/SearchBar.vue'
+import UpdateUser from '@/views/UpdateUser.vue'
 
 const router = useRouter()
 
@@ -13,19 +14,13 @@ const editDialog = ref(false)
 const deleteDialog = ref(false)
 const logoutDialog = ref(false)
 const userToDelete = ref(null)
+const userToEdit = ref(null)
 const isLoading = ref(false)
-const isEditLoading = ref(false)
 const isDeleteLoading = ref(false)
 const isLogoutLoading = ref(false)
 const showAlert = ref(false)
 const alertMessage = ref('')
 const alertType = ref('success')
-const editForm = ref({
-  id: '',
-  nama: '',
-  email: '',
-  username: ''
-})
 
 const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value
@@ -83,38 +78,20 @@ const handleSearch = (query) => {
 }
 
 const editUser = (user) => {
-  editForm.value = { ...user }
+  userToEdit.value = { ...user }
   editDialog.value = true
 }
 
-const updateUser = async () => {
-  if (!editForm.value.nama || !editForm.value.email || !editForm.value.username) {
-    showAlertMessage("Mohon lengkapi semua field", 'error')
-    return
-  }
-
-  isEditLoading.value = true
-  try {
-    const response = await usersAPI.update(editForm.value.id, {
-      username: editForm.value.username,
-      email: editForm.value.email,
-      nama: editForm.value.nama
-    })
-    
+const handleUpdateResult = (result) => {
+  if (result.success) {
     // Update user in local array
-    const index = users.value.findIndex(u => u.id === editForm.value.id)
+    const index = users.value.findIndex(u => u.id === result.data.id)
     if (index !== -1) {
-      users.value[index] = { ...response.data.data }
+      users.value[index] = { ...result.data }
     }
-    
-    editDialog.value = false
-    showAlertMessage("Data pengguna berhasil diperbarui!", 'success')
-  } catch (error) {
-    console.error('Error updating user:', error)
-    const errorMessage = error.response?.data?.error || "Gagal memperbarui data. Silakan coba lagi."
-    showAlertMessage(errorMessage, 'error')
-  } finally {
-    isEditLoading.value = false
+    showAlertMessage(result.message, 'success')
+  } else {
+    showAlertMessage(result.message, 'error')
   }
 }
 
@@ -177,6 +154,7 @@ const logout = async () => {
 
 const closeEditDialog = () => {
   editDialog.value = false
+  userToEdit.value = null
 }
 
 const closeDeleteDialog = () => {
@@ -243,90 +221,13 @@ const closeLogoutDialog = () => {
     </div>
   </div>
 
-  <!-- Edit User Modal -->
-  <div 
-    v-if="editDialog" 
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-    @click.self="closeEditDialog"
-  >
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-      <!-- Modal Header -->
-      <div class="px-8 pt-8 pb-6 text-center border-b border-gray-100">
-        <div class="mb-4 flex justify-center">
-          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-            <i class="fas fa-user-edit text-red-600 text-xl"></i>
-          </div>
-        </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Edit Pengguna</h3>
-        <p class="text-sm text-gray-500">Perbarui informasi pengguna</p>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="px-8 py-6 space-y-5">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Nama Lengkap
-          </label>
-          <input
-            v-model="editForm.nama"
-            type="text"
-            class="w-full h-12 px-4 text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-400"
-            placeholder="Masukkan nama lengkap"
-            :disabled="isEditLoading"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Email
-          </label>
-          <input
-            v-model="editForm.email"
-            type="email"
-            class="w-full h-12 px-4 text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-400"
-            placeholder="contoh@email.com"
-            :disabled="isEditLoading"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Username
-          </label>
-          <input
-            v-model="editForm.username"
-            type="text"
-            class="w-full h-12 px-4 text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-400"
-            placeholder="username"
-            :disabled="isEditLoading"
-          />
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="px-8 py-6 border-t border-gray-100 flex gap-3">
-        <button 
-          @click="closeEditDialog" 
-          class="flex-1 h-12 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-          :disabled="isEditLoading"
-        >
-          Batal
-        </button>
-        <button 
-          @click="updateUser" 
-          class="flex-1 h-12 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
-          :disabled="isEditLoading"
-        >
-          <span v-if="isEditLoading" class="flex items-center justify-center">
-            <i class="fas fa-spinner fa-spin mr-2"></i>
-            Menyimpan...
-          </span>
-          <span v-else class="flex items-center justify-center">
-            <i class="fas fa-save mr-2"></i>
-            Simpan
-          </span>
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- Update User Modal Component -->
+  <UpdateUser 
+    :show="editDialog"
+    :user="userToEdit"
+    @close="closeEditDialog"
+    @updated="handleUpdateResult"
+  />
 
   <!-- Delete Confirmation Modal -->
   <div 

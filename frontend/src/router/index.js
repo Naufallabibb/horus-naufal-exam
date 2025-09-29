@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import Dashboard from '@/views/Dashboard.vue'
-import UpdateUser from '@/views/UpdateUser.vue'
 
 const routes = [
   {
@@ -23,12 +22,6 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/update-user',
-    name: 'UpdateUser',
-    component: UpdateUser,
     meta: { requiresAuth: true }
   }
 ]

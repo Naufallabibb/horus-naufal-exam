@@ -5,6 +5,26 @@ def validate_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
+def validate_password(password):
+    """
+    Validate password requirements:
+    - Minimal 8 karakter
+    - Harus mengandung minimal 1 huruf
+    - Harus mengandung minimal 1 angka
+    """
+    if len(password) < 8:
+        return False, 'Password minimal 8 karakter'
+    
+    # Check if password contains at least one letter
+    if not re.search(r'[a-zA-Z]', password):
+        return False, 'Password harus mengandung minimal 1 huruf'
+    
+    # Check if password contains at least one number
+    if not re.search(r'[0-9]', password):
+        return False, 'Password harus mengandung minimal 1 angka'
+    
+    return True, None
+
 def validate_user_data(data):
     """Validate user registration data"""
     if not data:
@@ -30,9 +50,10 @@ def validate_user_data(data):
     if len(data['nama']) > 100:
         return False, 'Nama tidak boleh lebih dari 100 karakter'
     
-    # Validate password length
-    if len(data['password']) < 6:
-        return False, 'Password minimal 6 karakter'
+    # Validate password dengan aturan baru (8 karakter + huruf + angka)
+    is_valid_password, password_error = validate_password(data['password'])
+    if not is_valid_password:
+        return False, password_error
     
     if len(data['password']) > 255:
         return False, 'Password tidak boleh lebih dari 255 karakter'

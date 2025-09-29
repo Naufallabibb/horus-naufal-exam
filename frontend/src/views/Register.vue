@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authAPI } from '@/services/api'
+import { validateEmail, validatePassword } from '@/lib/utils'
 
 const router = useRouter()
 
@@ -26,20 +27,74 @@ const fieldErrors = ref({
   password: false
 })
 
+// Field validation messages
+const fieldErrorMessages = ref({
+  username: '',
+  email: '',
+  nama: '',
+  password: ''
+})
+
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
 const validateField = (fieldName) => {
-  fieldErrors.value[fieldName] = !registerForm.value[fieldName]
+  const value = registerForm.value[fieldName]
+  
+  // Reset error state
+  fieldErrors.value[fieldName] = false
+  fieldErrorMessages.value[fieldName] = ''
+  
+  // Check if field is empty
+  if (!value) {
+    fieldErrors.value[fieldName] = true
+    fieldErrorMessages.value[fieldName] = `${getFieldLabel(fieldName)} wajib diisi`
+    return false
+  }
+  
+  // Specific validation for email
+  if (fieldName === 'email') {
+    if (!validateEmail(value)) {
+      fieldErrors.value[fieldName] = true
+      fieldErrorMessages.value[fieldName] = 'Format email tidak valid'
+      return false
+    }
+  }
+  
+  // Specific validation for password
+  if (fieldName === 'password') {
+    if (!validatePassword(value)) {
+      fieldErrors.value[fieldName] = true
+      fieldErrorMessages.value[fieldName] = 'Password minimal 8 karakter dengan kombinasi huruf dan angka'
+      return false
+    }
+  }
+  
+  return true
+}
+
+const getFieldLabel = (fieldName) => {
+  const labels = {
+    username: 'Username',
+    email: 'Email',
+    nama: 'Nama lengkap',
+    password: 'Password'
+  }
+  return labels[fieldName] || fieldName
 }
 
 const validateAllFields = () => {
+  let isValid = true
+  
   Object.keys(registerForm.value).forEach(field => {
-    fieldErrors.value[field] = !registerForm.value[field]
+    if (!validateField(field)) {
+      isValid = false
+    }
   })
-  return !Object.values(fieldErrors.value).some(error => error)
+  
+  return isValid
 }
 
 const showAlertMessage = (message, type = 'success') => {
@@ -56,7 +111,7 @@ const showAlertMessage = (message, type = 'success') => {
 const handleRegister = async () => {
   // Validate all fields first
   if (!validateAllFields()) {
-    showAlertMessage('Mohon lengkapi semua field yang diperlukan', 'error')
+    showAlertMessage('Mohon lengkapi semua field dengan benar', 'error')
     return
   }
 
@@ -135,11 +190,11 @@ const goToLogin = () => {
               @blur="validateField('username')"
               @input="fieldErrors.username = false"
             />
-            <p class="text-xs text-gray-500 mt-1">
+            <p v-if="!fieldErrors.username" class="text-xs text-gray-500 mt-1">
               Username akan digunakan untuk masuk ke akun Anda
             </p>
             <p v-if="fieldErrors.username" class="text-xs text-red-500 mt-1">
-              Username wajib diisi
+              {{ fieldErrorMessages.username }}
             </p>
           </div>
 
@@ -161,11 +216,11 @@ const goToLogin = () => {
               @blur="validateField('email')"
               @input="fieldErrors.email = false"
             />
-            <p class="text-xs text-gray-500 mt-1">
+            <p v-if="!fieldErrors.email" class="text-xs text-gray-500 mt-1">
               Gunakan alamat email aktif Anda
             </p>
             <p v-if="fieldErrors.email" class="text-xs text-red-500 mt-1">
-              Email wajib diisi
+              {{ fieldErrorMessages.email }}
             </p>
           </div>
 
@@ -187,11 +242,11 @@ const goToLogin = () => {
               @blur="validateField('nama')"
               @input="fieldErrors.nama = false"
             />
-            <p class="text-xs text-gray-500 mt-1">
-              Masukkan nama asli Anda sesuai data sertifikat
+            <p v-if="!fieldErrors.nama" class="text-xs text-gray-500 mt-1">
+              Masukkan nama asli Anda sesuai KTP
             </p>
             <p v-if="fieldErrors.nama" class="text-xs text-red-500 mt-1">
-              Nama lengkap wajib diisi
+              {{ fieldErrorMessages.nama }}
             </p>
           </div>
 
@@ -224,11 +279,11 @@ const goToLogin = () => {
                 <i v-else class="fas fa-eye-slash text-lg"></i>
               </button>
             </div>
-            <p class="text-xs text-gray-500 mt-1">
+            <p v-if="!fieldErrors.password" class="text-xs text-gray-500 mt-1">
               Gunakan minimal 8 karakter dengan kombinasi huruf dan angka
             </p>
             <p v-if="fieldErrors.password" class="text-xs text-red-500 mt-1">
-              Password wajib diisi
+              {{ fieldErrorMessages.password }}
             </p>
           </div>
         </div>
