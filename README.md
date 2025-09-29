@@ -1,4 +1,3 @@
-
 # Horus Entry Exam - Fullstack Programmer Internship
 
 [![Repository](https://img.shields.io/badge/GitHub-horus--naufal--exam-blue?logo=github)](https://github.com/Naufallabibb/horus-naufal-exam)
@@ -7,22 +6,22 @@ Proyek ini merupakan submission untuk Horus Entry Exam posisi Fullstack Programm
 
 ## 📋 Daftar Isi
 
-* [Fitur Utama](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-fitur-utama)
-* [Teknologi yang Digunakan](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-teknologi-yang-digunakan)
-* [Struktur Folder](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-struktur-folder)
-* [Prasyarat](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-prasyarat)
-* [Instalasi](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-instalasi)
-  * [Backend Setup](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#1-backend-setup)
-  * [Frontend Setup](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#2-frontend-setup)
-  * [Database Setup](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#3-database-setup)
-* [Menjalankan Aplikasi](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-menjalankan-aplikasi)
-* [API Endpoints](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-api-endpoints)
-* [Halaman Web](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-halaman-web)
-* [Database Schema](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-database-schema)
-* [Environment Variables](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-environment-variables)
-* [Testing](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-testing)
-* [Troubleshooting](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-troubleshooting)
-* [Kontributor](https://claude.ai/chat/095738c9-11d4-47f3-b8dc-388baa61e250#-kontributor)
+* Fitur Utama
+* Teknologi yang Digunakan
+* Struktur Folder
+* Prasyarat
+* Instalasi
+  * Backend Setup
+  * Frontend Setup
+  * Database Setup
+* Menjalankan Aplikasi
+* API Endpoints
+* Halaman Web
+* Database Schema
+* Environment Variables
+* Testing
+* Troubleshooting
+* Kontributor
 
 ## ✨ Fitur Utama
 
@@ -520,6 +519,9 @@ CORS_ORIGINS=http://localhost:3000
 # API Configuration
 VUE_APP_API_BASE_URL=http://localhost:5000
 
+# Port Configuration
+VUE_APP_PORT=3000
+
 # App Configuration (Optional)
 VUE_APP_NAME=Horus User Management
 ```
@@ -618,9 +620,8 @@ npm install
 # Windows: netstat -ano | findstr :5000
 # Linux/Mac: lsof -ti:5000 | xargs kill -9
 
-# Frontend (port 8080)
-# Ubah port di vue.config.js atau jalankan:
-npm run serve -- --port 3000
+# Frontend (port 3000)
+# Ubah port di vue.config.js atau package.json jika perlu
 ```
 
 ## 📝 Development Notes
