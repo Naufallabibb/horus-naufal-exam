@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { usersAPI, authAPI } from '@/services/api'
 import UserTable from '@/components/UserTable.vue'
@@ -10,6 +10,11 @@ const router = useRouter()
 
 const users = ref([])
 const searchQuery = ref('')
+const currentPage = ref(1)
+const totalPages = ref(1)
+const totalUsers = ref(0)
+const perPage = ref(10)
+
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 const logoutDialog = ref(false)
@@ -22,15 +27,6 @@ const showAlert = ref(false)
 const alertMessage = ref('')
 const alertType = ref('success')
 
-const filteredUsers = computed(() => {
-  if (!searchQuery.value) return users.value
-  return users.value.filter(user => 
-    user.nama.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
-
 const showAlertMessage = (message, type = 'success') => {
   alertMessage.value = message
   alertType.value = type
@@ -41,13 +37,29 @@ const showAlertMessage = (message, type = 'success') => {
   }, 5000)
 }
 
-// Load users data on component mount
-const loadUsers = async () => {
+// Load users data with pagination
+const loadUsers = async (page = 1, search = '') => {
   isLoading.value = true
   try {
-    const response = await usersAPI.getAll()
+    const response = await usersAPI.getAll({
+      page: page,
+      per_page: perPage.value,
+      search: search
+    })
+    
     users.value = response.data.data || []
-    console.log('Users loaded successfully')
+    totalUsers.value = response.data.total || 0
+    currentPage.value = response.data.page || 1
+    
+    // Calculate total pages
+    totalPages.value = Math.ceil(totalUsers.value / perPage.value)
+    
+    console.log('Users loaded successfully:', {
+      total: totalUsers.value,
+      page: currentPage.value,
+      pages: totalPages.value,
+      perPage: perPage.value
+    })
   } catch (error) {
     console.error('Error loading users:', error)
     const errorMessage = error.response?.data?.error || "Failed to load users"
@@ -70,11 +82,32 @@ onMounted(() => {
     return
   }
   
-  loadUsers()
+  loadUsers(1, searchQuery.value)
+})
+
+// Watch for search query changes and reload from page 1
+watch(searchQuery, (newQuery) => {
+  currentPage.value = 1
+  loadUsers(1, newQuery)
 })
 
 const handleSearch = (query) => {
   searchQuery.value = query
+}
+
+const handlePageChange = (page) => {
+  currentPage.value = page
+  loadUsers(page, searchQuery.value)
+  
+  // Scroll to top of table
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// Handler untuk perubahan jumlah data per halaman
+const handlePerPageChange = (newPerPage) => {
+  perPage.value = newPerPage
+  currentPage.value = 1 // Reset ke halaman pertama
+  loadUsers(1, searchQuery.value)
 }
 
 const editUser = (user) => {
@@ -84,11 +117,8 @@ const editUser = (user) => {
 
 const handleUpdateResult = (result) => {
   if (result.success) {
-    // Update user in local array
-    const index = users.value.findIndex(u => u.id === result.data.id)
-    if (index !== -1) {
-      users.value[index] = { ...result.data }
-    }
+    // Reload current page to get updated data
+    loadUsers(currentPage.value, searchQuery.value)
     showAlertMessage(result.message, 'success')
   } else {
     showAlertMessage(result.message, 'error')
@@ -107,15 +137,17 @@ const deleteUser = async () => {
   try {
     await usersAPI.delete(userToDelete.value.id)
     
-    // Remove user from local array
-    const index = users.value.findIndex(u => u.id === userToDelete.value.id)
-    if (index !== -1) {
-      users.value.splice(index, 1)
-    }
-    
     deleteDialog.value = false
     userToDelete.value = null
     showAlertMessage("Pengguna berhasil dihapus!", 'success')
+    
+    // Reload current page after deletion
+    // If current page becomes empty and it's not page 1, go to previous page
+    if (users.value.length === 1 && currentPage.value > 1) {
+      handlePageChange(currentPage.value - 1)
+    } else {
+      loadUsers(currentPage.value, searchQuery.value)
+    }
   } catch (error) {
     console.error('Error deleting user:', error)
     const errorMessage = error.response?.data?.error || "Gagal menghapus pengguna. Silakan coba lagi."
@@ -200,7 +232,7 @@ const closeLogoutDialog = () => {
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-gray-900">Data Pengguna</h2>
             <div class="text-sm text-gray-500">
-              Total: {{ filteredUsers.length }} pengguna
+              Total: {{ totalUsers }} pengguna
             </div>
           </div>
         </div>
@@ -213,9 +245,15 @@ const closeLogoutDialog = () => {
         </div>
         <UserTable 
           v-else
-          :users="filteredUsers" 
+          :users="users"
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          :total-users="totalUsers"
+          :per-page="perPage"
           @edit="editUser" 
-          @delete="confirmDelete" 
+          @delete="confirmDelete"
+          @page-change="handlePageChange"
+          @per-page-change="handlePerPageChange"
         />
       </div>
     </div>
@@ -363,12 +401,8 @@ const closeLogoutDialog = () => {
             alertType === 'success' ? 'text-green-500' : 'text-red-500'
           ]"
         >
-          <svg v-if="alertType === 'success'" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-          </svg>
-          <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-          </svg>
+          <i v-if="alertType === 'success'" class="fas fa-check-circle text-xl"></i>
+          <i v-else class="fas fa-exclamation-triangle text-xl"></i>
         </div>
         
         <!-- Message -->
@@ -386,9 +420,7 @@ const closeLogoutDialog = () => {
               : 'text-red-500 hover:bg-red-100 hover:text-red-600'
           ]"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+          <i class="fas fa-times"></i>
         </button>
       </div>
     </div>
