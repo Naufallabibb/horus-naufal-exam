@@ -1,3 +1,4 @@
+
 # Horus Entry Exam - Fullstack Programmer Internship
 
 [![Repository](https://img.shields.io/badge/GitHub-horus--naufal--exam-blue?logo=github)](https://github.com/Naufallabibb/horus-naufal-exam)
@@ -236,6 +237,7 @@ Contoh isi file `.env`:
 
 ```env
 VUE_APP_API_BASE_URL=http://localhost:5000
+VUE_APP_PORT=3000
 ```
 
 ### 3. Database Setup
@@ -297,9 +299,9 @@ cd frontend
 npm run serve
 ```
 
-Frontend akan berjalan di: **http://localhost:8080**
+Frontend akan berjalan di: **http://localhost:3000**
 
-Buka browser dan akses **http://localhost:8080** untuk menggunakan aplikasi.
+Buka browser dan akses **http://localhost:3000** untuk menggunakan aplikasi.
 
 ## 🔌 API Endpoints
 
@@ -509,7 +511,7 @@ DATABASE_URL=mysql+pymysql://username:password@localhost/horus_naufal_db
 JWT_ACCESS_TOKEN_EXPIRES=3600  # 1 hour in seconds
 
 # CORS Configuration (Optional)
-CORS_ORIGINS=http://localhost:8080
+CORS_ORIGINS=http://localhost:3000
 ```
 
 ### Frontend `.env`
