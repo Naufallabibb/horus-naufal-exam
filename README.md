@@ -27,7 +27,7 @@ Proyek ini merupakan submission untuk Horus Entry Exam posisi Fullstack Programm
 
 * **Autentikasi User** : Sistem login dan registrasi dengan password hashing
 * **Manajemen User** : CRUD operations untuk data pengguna
-* **Dashboard Interaktif** : Tampilan data user dalam bentuk tabel dengan fitur pencarian
+* **Dashboard Interaktif** : Tampilan data user dalam bentuk tabel dengan fitur pencarian dan pagination
 * **Protected Routes** : Halaman dashboard yang hanya bisa diakses setelah login
 * **Responsive Design** : Antarmuka yang dapat menyesuaikan berbagai ukuran layar
 * **Validasi Data** : Validasi di sisi client dan server untuk integritas data
@@ -639,7 +639,6 @@ npm install
 ### Improvements & Future Enhancements:
 
 * [ ] Unit testing untuk backend dan frontend
-* [ ] Pagination untuk list users
 * [ ] Email verification saat registrasi
 * [ ] Forgot password functionality
 * [ ] Role-based access control (admin/user)
