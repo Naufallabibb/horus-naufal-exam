@@ -7,9 +7,9 @@ import { validateEmail, validatePassword } from '@/lib/utils'
 const router = useRouter()
 
 const registerForm = ref({
-  username: '',
-  email: '',
   nama: '',
+  email: '',
+  username: '',
   password: ''
 })
 
@@ -21,17 +21,17 @@ const alertType = ref('success') // 'success' or 'error'
 
 // Field validation states
 const fieldErrors = ref({
-  username: false,
-  email: false,
   nama: false,
+  email: false,
+  username: false,
   password: false
 })
 
 // Field validation messages
 const fieldErrorMessages = ref({
-  username: '',
-  email: '',
   nama: '',
+  email: '',
+  username: '',
   password: ''
 })
 
@@ -77,9 +77,9 @@ const validateField = (fieldName) => {
 
 const getFieldLabel = (fieldName) => {
   const labels = {
-    username: 'Username',
-    email: 'Email',
     nama: 'Nama lengkap',
+    email: 'Email',
+    username: 'Username',
     password: 'Password'
   }
   return labels[fieldName] || fieldName
@@ -119,9 +119,9 @@ const handleRegister = async () => {
 
   try {
     const response = await authAPI.register({
-      username: registerForm.value.username,
-      email: registerForm.value.email,
       nama: registerForm.value.nama,
+      email: registerForm.value.email,
+      username: registerForm.value.username,   
       password: registerForm.value.password
     })
     
@@ -162,7 +162,7 @@ const goToLogin = () => {
           >
         </div>
         <h1 class="text-2xl font-semibold text-gray-800 mb-2">
-          REGISTER AKUN
+          REGISTRASI AKUN
         </h1>
         <p class="text-gray-500 text-sm">
           Silahkan daftarkan informasi akun kamu.
@@ -172,29 +172,29 @@ const goToLogin = () => {
       <!-- Form Section -->
       <div class="px-8 pb-8">
         <div class="space-y-5">
-          <!-- Username Field -->
+          <!-- Nama Field -->
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-              Username <span class="text-red-500">*</span>
+            <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">
+              Nama Lengkap <span class="text-red-500">*</span>
             </label>
             <input
-              id="username"
-              v-model="registerForm.username"
+              id="nama"
+              v-model="registerForm.nama"
               type="text"
               :class="[
                 'w-full h-12 px-4 text-gray-900 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-400',
-                fieldErrors.username ? 'border-red-500' : 'border-gray-300'
+                fieldErrors.nama ? 'border-red-500' : 'border-gray-300'
               ]"
-              placeholder="Masukkan username Anda"
+              placeholder="Masukkan nama lengkap Anda"
               :disabled="isLoading"
-              @blur="validateField('username')"
-              @input="fieldErrors.username = false"
+              @blur="validateField('nama')"
+              @input="fieldErrors.nama = false"
             />
-            <p v-if="!fieldErrors.username" class="text-xs text-gray-500 mt-1">
-              Username akan digunakan untuk masuk ke akun Anda
+            <p v-if="!fieldErrors.nama" class="text-xs text-gray-500 mt-1">
+              Masukkan nama asli Anda sesuai KTP
             </p>
-            <p v-if="fieldErrors.username" class="text-xs text-red-500 mt-1">
-              {{ fieldErrorMessages.username }}
+            <p v-if="fieldErrors.nama" class="text-xs text-red-500 mt-1">
+              {{ fieldErrorMessages.nama }}
             </p>
           </div>
 
@@ -224,29 +224,29 @@ const goToLogin = () => {
             </p>
           </div>
 
-          <!-- Nama Field -->
+          <!-- Username Field -->
           <div>
-            <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">
-              Nama Lengkap <span class="text-red-500">*</span>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+              Username <span class="text-red-500">*</span>
             </label>
             <input
-              id="nama"
-              v-model="registerForm.nama"
+              id="username"
+              v-model="registerForm.username"
               type="text"
               :class="[
                 'w-full h-12 px-4 text-gray-900 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-400',
-                fieldErrors.nama ? 'border-red-500' : 'border-gray-300'
+                fieldErrors.username ? 'border-red-500' : 'border-gray-300'
               ]"
-              placeholder="Masukkan nama lengkap Anda"
+              placeholder="Masukkan username Anda"
               :disabled="isLoading"
-              @blur="validateField('nama')"
-              @input="fieldErrors.nama = false"
+              @blur="validateField('username')"
+              @input="fieldErrors.username = false"
             />
-            <p v-if="!fieldErrors.nama" class="text-xs text-gray-500 mt-1">
-              Masukkan nama asli Anda sesuai KTP
+            <p v-if="!fieldErrors.username" class="text-xs text-gray-500 mt-1">
+              Username akan digunakan untuk masuk ke akun Anda
             </p>
-            <p v-if="fieldErrors.nama" class="text-xs text-red-500 mt-1">
-              {{ fieldErrorMessages.nama }}
+            <p v-if="fieldErrors.username" class="text-xs text-red-500 mt-1">
+              {{ fieldErrorMessages.username }}
             </p>
           </div>
 
